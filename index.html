@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>real time weather</title>
+  <script src="https://unpkg.com/socket.io-client@4.4.1/dist/socket.io.min.js"></script>
+</head>
+
+<body>
+  <form onsubmit="submit()">
+    <input id="city" placeholder="请输入城市" required></input>
+    <button type="submit">获取天气信息</button>
+  </form>
+  <script>
+    const socket = io()
+
+    function submit() {
+      const cityValue = city.value
+      console.log(cityValue)
+    }
+  </script>
+</body>
+
+</html>

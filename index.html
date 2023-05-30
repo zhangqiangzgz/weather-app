@@ -14,17 +14,99 @@
     <input type="text" id="city" name="city" placeholder="请输入城市" required></input>
     <button>获取天气信息</button>
   </form>
+
+  <div id="weatherContainer">
+    <div class="title"></div>
+    <div class="content"></div>
+  </div>
   <script>
+    let cityValue = ''
     const socket = io('ws://localhost:3000')
 
     weatherForm.addEventListener('submit', (event) => {
       event.preventDefault()
       console.log(`city: ${city.value}`)
+      cityValue = city.value
       socket.emit('subscribe', city.value)
     })
-    
-    socket.on('weatherUpdated', (data) => {
+
+    const formatWeatherData = (data) => {
       console.log(data)
+      const weatherData = []
+      const {
+        coord: {
+          lon,
+          lat
+        },
+        main: {
+          feels_like,
+          humidity,
+          temp,
+          temp_min,
+          temp_max
+        },
+        weather,
+        visibility,
+        wind: {
+          speed
+        }
+      } = data
+      weatherData.push({
+        id: 'coord',
+        name: '经纬度',
+        value: `${lon}/${lat}` || ''
+      })
+      weatherData.push({
+        id: 'description',
+        name: '天气概况',
+        value: data.weather[0].description || ''
+      })
+      weatherData.push({
+        id: 'temp',
+        name: '今日温度',
+        value: `${temp}℃` || ''
+      })
+      weatherData.push({
+        id: 'temp',
+        name: '体感温度',
+        value: `${feels_like}℃` || ''
+      })
+      weatherData.push({
+        id: 'max_min',
+        name: '温度范围',
+        value: `${temp_min}℃~${temp_max}℃` || ''
+      })
+      weatherData.push({
+        id: 'visibility',
+        name: '可见度',
+        value: `${visibility}米` || ''
+      })
+      weatherData.push({
+        id: 'windSpeed',
+        name: '风速',
+        value: `${speed}米` || ''
+      })
+      return weatherData
+    }
+
+    socket.on('weatherUpdated', (data) => {
+      console.log('weatherContainer', weatherContainer)
+      const weatherData = formatWeatherData(data)
+      const title = weatherContainer.querySelector('.title')
+      const content = weatherContainer.querySelector('.content')
+      title.textContent = cityValue ? `${cityValue}的天气情况` : ''
+      content.innerHTML = ''
+      const ul = document.createElement('ul')
+      content.appendChild(ul)
+
+      const fragment = new DocumentFragment()
+      weatherData.forEach((item) => {
+        const li = document.createElement('li')
+        li.textContent = `${item.name}: ${item.value}`
+        fragment.appendChild(li)
+      })
+
+      ul.appendChild(fragment)
     })
   </script>
 </body>

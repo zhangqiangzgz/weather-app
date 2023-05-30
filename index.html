@@ -10,17 +10,22 @@
 </head>
 
 <body>
-  <form onsubmit="submit()">
-    <input id="city" placeholder="请输入城市" required></input>
-    <button type="submit">获取天气信息</button>
+  <form id="weatherForm">
+    <input type="text" id="city" name="city" placeholder="请输入城市" required></input>
+    <button>获取天气信息</button>
   </form>
   <script>
-    const socket = io()
+    const socket = io('ws://localhost:3000')
 
-    function submit() {
-      const cityValue = city.value
-      console.log(cityValue)
-    }
+    weatherForm.addEventListener('submit', (event) => {
+      event.preventDefault()
+      console.log(`city: ${city.value}`)
+      socket.emit('subscribe', city.value)
+    })
+    
+    socket.on('weatherUpdated', (data) => {
+      console.log(data)
+    })
   </script>
 </body>
 

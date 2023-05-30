@@ -25,14 +25,48 @@ app.use(bodyParser())
 app.use(router.routes())
 app.use(router.allowedMethods())
 
-router.get('/weather/:city', (ctx, next) => {
+router.get('/weather/:city', async (ctx, next) => {
   const city = ''
-  const { data } = axios.get(`${weatherApi}?q=${city}&appid=${apiKey}`)
-  console.log(data)
+  try {
+    const { data } = await axios.get(weatherApi, {
+      params: {
+        q:city,
+        appid: apiKey,
+        lang: 'zh_cn',
+        units: 'metric'
+      }
+    })
+    ctx.body = data
+  } catch(error) {
+    console.error(`Failed to fetch weather data for ${city}: ${error}`)
+  }
 })
+
+const updateWeather = async (socket, city) => {
+  try {
+    const { data } = await axios.get(weatherApi, {
+      params: {
+        q:city,
+        appid: apiKey,
+        lang: 'zh_cn',
+        units: 'metric'
+      }
+    })
+    socket.emit('weatherUpdated', data)
+  } catch(error) {
+    console.error(`Failed to fetch weather data for ${city}: ${error}`)
+  }
+}
 
 io.on('connection', (socket) => {
   console.log(`connection: ${socket}`)
+  socket.on('subscribe', async (city) => {
+    console.log(`subscribe to ${city}`)
+    await updateWeather(socket, city)
+  })
+  socket.on('disconnect', () => {
+    console.log('Client disconnect')
+  })
 })
 
 httpServer.listen(PORT, () => {

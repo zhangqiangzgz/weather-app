@@ -11,8 +11,8 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 const PORT = 3000
-const weatherApi = 'https://api.openweathermap.org/data/2.5/weather'
-const apiKey = '7e92585c87ba4a3b94ade65dd377cffc'
+const weatherApi = process.env.WEATHER_API
+const apiKey = process.env.WEATHER_API_KEY
 
 const app = new Koa()
 const httpServer = createServer(app.callback())
